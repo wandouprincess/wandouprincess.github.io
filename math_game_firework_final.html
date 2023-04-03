@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>算术题游戏</title>
+	<meta charset="UTF-8">
+	<script type="text/javascript">
+		var timeleft = 10;
+		var score = 0;
+		var timer;
+
+		function startGame() {
+            timeleft = 10;
+            score = 0;
+            document.getElementById("startBtn").disabled = true;
+            document.getElementById("endBtn").disabled = false;
+            document.getElementById("timer").innerHTML = "剩余时间：" + timeleft + "秒";
+            document.getElementById("score").innerHTML = "得分：" + score + "分";
+
+			timer = setInterval(function() {
+				timeleft--;
+				document.getElementById("timer").innerHTML = "剩余时间：" + timeleft + "秒";
+				if (timeleft == 0) {
+					clearInterval(timer);
+					document.getElementById("question").innerHTML = "时间到！你的总分是：" + score + "分";
+					
+                    document.getElementById("submitBtn").disabled = false;
+                    document.getElementById("endBtn").disabled = true;
+                    document.getElementById("startBtn").disabled = false;
+				}
+			}, 1000);
+			generateQuestion();
+		}
+
+		function generateQuestion() {
+			var num1 = Math.floor(Math.random() * 11);
+			var num2 = Math.floor(Math.random() * 11);
+			var question = "请计算 " + num1 + " + " + num2 + " = ";
+			document.getElementById("question").innerHTML = question;
+			document.getElementById("answer").value = "";
+		}
+
+		function submitAnswer() {
+			var answer = document.getElementById("answer").value;
+			var num1 = parseInt(document.getElementById("question").innerHTML.split("+")[0].split(" ")[1]);
+			var num2 = parseInt(document.getElementById("question").innerHTML.split("+")[1].split(" ")[1]);
+			var correctAnswer = num1 + num2;
+			if (answer == correctAnswer) {
+				score++;
+				document.getElementById("score").innerHTML = "得分：" + score + "分";
+				generateQuestion();
+				drawFirework(150, 150);
+			}
+            else {
+                generateQuestion();
+            }
+		}
+
+        function endGame() {
+            clearInterval(timer);
+            document.getElementById("question").innerHTML = "游戏结束！你的总分是：" + score + "分";
+            document.getElementById("submitBtn").disabled = false;
+            document.getElementById("endBtn").disabled = true;
+            document.getElementById("startBtn").disabled = false;
+	    }
+
+        function drawFirework(x, y) {
+            var canvas = document.getElementById("firework");
+            var ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            var particles = [];
+            var hue = Math.floor(Math.random() * 360);
+            for (var i = 0; i < 100; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(Math.PI * 2 / 100 * i) * 5,
+                    vy: Math.sin(Math.PI * 2 / 100 * i) * 5,
+                    hue: hue,
+                    size: 10
+                });
+            }
+
+            function draw() {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                for (var i = 0; i < particles.length; i++) {
+                    var p = particles[i];
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = "hsl(" + p.hue + ", 100%, 50%)";
+                    ctx.fill();
+
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.size -= 0.1;
+                }
+
+                particles = particles.filter(function(p) {
+                    return p.size > 0;
+                });
+            }
+
+            setInterval(draw, 30);
+        }
+	</script>
+	<style>
+		#submitBtn {
+			background-color: red;
+			color: white;
+		}
+
+		#endBtn {
+			background-color: green;
+			color: white;
+		}
+
+        #startBtn {
+			background-color: rgb(86, 49, 128);
+			color: white;
+		}
+       
+        #firework {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        }
+
+	</style>
+</head>
+<body>
+	<h1>算术题游戏</h1>
+	<p id="timer">剩余时间：10秒</p>
+	<p id="score">得分：0分</p>
+	<p id="question"></p>
+	<input type="text" id="answer">
+	<button onclick="submitAnswer()" id="submitBtn" style="background-color:red;color:white;">提交答案</button>
+	<br><br>
+	<button onclick="startGame()" id="startBtn" style="color:white;">开始游戏</button>
+    <button onclick="endGame()" id="endBtn" disabled style="background-color:green;color:white;">结束游戏</button>
+    <canvas id="firework" width="300" height="300" style="position:absolute;bottom:0;right:0;z-index:-1;"></canvas>
+</body>
+</html>
